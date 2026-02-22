@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from "react";
-import { Rocket, User, Layout, Settings, LogOut, Bookmark, Zap } from "lucide-react";
+import { Rocket, User, Layout, Settings, LogOut, Bookmark, Zap, Bell, Search, HelpCircle } from "lucide-react";
 import { useAuth0 } from "@auth0/auth0-react";
 import { Link } from "react-router-dom";
 
@@ -50,8 +50,8 @@ const Navbar = () => {
           )}
         </div>
 
-        {/* User Actions */}
-        <div className="relative flex items-center gap-6" ref={dropdownRef}>
+        {/* User Actions Section */}
+        <div className="flex items-center gap-4 md:gap-6" ref={dropdownRef}>
           {!isAuthenticated ? (
             <button
               onClick={() => loginWithRedirect()}
@@ -61,55 +61,80 @@ const Navbar = () => {
             </button>
           ) : (
             <>
-              {/* Profile Trigger */}
-              <button 
-                onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-                className="relative group focus:outline-none"
-              >
-                <img
-                  src={user?.picture}
-                  alt="Profile"
-                  className="w-10 h-10 rounded-full border-2 border-slate-800 group-hover:border-indigo-500 transition-all shadow-xl"
-                />
-                <div className="absolute -bottom-0.5 -right-0.5 w-3 h-3 bg-emerald-500 border-2 border-slate-950 rounded-full"></div>
+              {/* Utility Icons (Search/Help) */}
+              <div className="hidden sm:flex items-center gap-4 text-slate-500">
+                <button className="hover:text-indigo-400 transition-colors"><Search size={18} /></button>
+                <button className="hover:text-indigo-400 transition-colors"><HelpCircle size={18} /></button>
+              </div>
+
+              {/* Notification Icon */}
+              <button className="relative text-slate-400 hover:text-white transition-colors">
+                <Bell size={20} />
+                {/* Notification Ping Animation */}
+                <span className="absolute -top-1 -right-1 flex h-3 w-3">
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-indigo-400 opacity-75"></span>
+                  <span className="relative inline-flex rounded-full h-3 w-3 bg-indigo-500"></span>
+                </span>
               </button>
 
-              {/* Account Dropdown */}
-              {isDropdownOpen && (
-                <div className="absolute right-0 top-14 w-64 bg-slate-900 border border-slate-800 rounded-2xl shadow-2xl p-2 animate-in fade-in slide-in-from-top-2">
-                  
-                  <div className="px-4 py-3 mb-2 bg-slate-950/50 rounded-xl">
-                    <p className="font-bold text-slate-100 truncate text-sm">{user?.name}</p>
-                    <p className="text-slate-500 text-xs truncate">{user?.email}</p>
+              {/* Profile Trigger */}
+              <div className="relative">
+                <button 
+                  onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+                  className="relative group focus:outline-none flex items-center justify-center"
+                >
+                  <div className="w-10 h-10 rounded-full border-2 border-slate-800 group-hover:border-indigo-500 transition-all shadow-xl overflow-hidden bg-slate-900 flex items-center justify-center">
+                    {user?.picture ? (
+                      <img
+                        src={user.picture}
+                        alt="Profile"
+                        className="w-full h-full object-cover"
+                        onError={(e) => { e.target.src = "https://ui-avatars.com/api/?name=" + user.name; }} 
+                      />
+                    ) : (
+                      <User size={20} className="text-slate-500" />
+                    )}
                   </div>
+                  {/* Online Status Dot */}
+                  <div className="absolute -bottom-0.5 -right-0.5 w-3.5 h-3.5 bg-emerald-500 border-2 border-slate-950 rounded-full"></div>
+                </button>
 
-                  <div className="space-y-1">
-                    <DropdownLink to="/userprofile" icon={<User size={16} />} label="Account Settings" onClick={() => setIsDropdownOpen(false)} />
-                    <DropdownLink to="/userdashboard" icon={<Layout size={16} />} label="My Projects" onClick={() => setIsDropdownOpen(false)} />
-                    <DropdownLink to="/settings" icon={<Zap size={16} />} label="API Keys" onClick={() => setIsDropdownOpen(false)} />
-                  </div>
+                {/* Account Dropdown */}
+                {isDropdownOpen && (
+                  <div className="absolute right-0 top-14 w-64 bg-slate-900 border border-slate-800 rounded-2xl shadow-2xl p-2 animate-in fade-in slide-in-from-top-2 duration-200">
+                    
+                    <div className="px-4 py-3 mb-2 bg-slate-950/50 rounded-xl">
+                      <p className="font-bold text-slate-100 truncate text-sm">{user?.name || "Founder"}</p>
+                      <p className="text-slate-500 text-xs truncate">{user?.email}</p>
+                    </div>
 
-                  <div className="border-t border-slate-800 mt-2 pt-2">
-                    <button
-                      onClick={handleLogout}
-                      className="w-full flex items-center gap-3 px-4 py-2 text-sm text-red-400 hover:bg-red-400/10 rounded-xl transition"
-                    >
-                      <LogOut size={16} />
-                      Logout
-                    </button>
+                    <div className="space-y-1">
+                      <DropdownLink to="/userprofile" icon={<User size={16} />} label="Account Settings" onClick={() => setIsDropdownOpen(false)} />
+                      <DropdownLink to="/userdashboard" icon={<Layout size={16} />} label="My Projects" onClick={() => setIsDropdownOpen(false)} />
+                      <DropdownLink to="/settings" icon={<Zap size={16} />} label="API Keys" onClick={() => setIsDropdownOpen(false)} />
+                      <DropdownLink to="/bookmarks" icon={<Bookmark size={16} />} label="Saved Items" onClick={() => setIsDropdownOpen(false)} />
+                    </div>
+
+                    <div className="border-t border-slate-800 mt-2 pt-2">
+                      <button
+                        onClick={handleLogout}
+                        className="w-full flex items-center gap-3 px-4 py-2 text-sm text-red-400 hover:bg-red-400/10 rounded-xl transition"
+                      >
+                        <LogOut size={16} />
+                        Logout
+                      </button>
+                    </div>
                   </div>
-                </div>
-              )}
+                )}
+              </div>
             </>
           )}
         </div>
-
       </div>
     </nav>
   );
 };
 
-// Sub-component for Dropdown Items
 const DropdownLink = ({ to, icon, label, onClick }) => (
   <Link
     to={to}
@@ -117,7 +142,7 @@ const DropdownLink = ({ to, icon, label, onClick }) => (
     className="flex items-center gap-3 px-4 py-2.5 text-sm text-slate-400 hover:text-white hover:bg-slate-800 rounded-xl transition"
   >
     {icon}
-    {label}
+    <span className="flex-1">{label}</span>
   </Link>
 );
 
