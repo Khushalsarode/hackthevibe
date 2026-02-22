@@ -1,127 +1,103 @@
 import React, { useState, useRef, useEffect } from "react";
-import { Rocket } from "lucide-react";
+import { Rocket, User, Layout, Settings, LogOut, Bookmark, Zap } from "lucide-react";
 import { useAuth0 } from "@auth0/auth0-react";
 import { Link } from "react-router-dom";
 
 const Navbar = () => {
   const { loginWithRedirect, logout, user, isAuthenticated } = useAuth0();
-  const [isOpen, setIsOpen] = useState(false);
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const dropdownRef = useRef(null);
 
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
-        setIsOpen(false);
+        setIsDropdownOpen(false);
       }
     };
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
+  const handleLogout = () => {
+    logout({ logoutParams: { returnTo: window.location.origin } });
+  };
+
   return (
     <nav className="fixed top-0 left-0 w-full z-50 bg-slate-950/80 backdrop-blur-md border-b border-slate-800">
       <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
         
-        {/* Logo */}
-        <Link to="/" className="flex items-center gap-2 font-semibold text-lg tracking-tight">
-          <Rocket className="text-indigo-400" size={22} />
-          <span>AI Launch Agent</span>
+        {/* Brand Identity */}
+        <Link to="/" className="flex items-center gap-2 font-bold text-xl tracking-tight text-white group">
+          <Rocket className="text-indigo-500 group-hover:rotate-12 transition-transform" size={24} />
+          <span>LaunchAgent<span className="text-indigo-500">.ai</span></span>
         </Link>
 
-        {/* Conditional Nav Links */}
-        <div className="hidden md:flex items-center gap-8 text-sm text-slate-300">
+        {/* Desktop Navigation */}
+        <div className="hidden md:flex items-center gap-8 text-sm font-medium text-slate-400">
           {!isAuthenticated ? (
             <>
-              <Link to="/" className="hover:text-white transition">
-                Home
-              </Link>
-              <Link to="/about" className="hover:text-white transition">
-                About
-              </Link>
+              <Link to="/" className="hover:text-white transition">Home</Link>
+              <Link to="/about" className="hover:text-white transition">About</Link>
             </>
           ) : (
             <>
-              <Link to="/dashboard" className="hover:text-white transition">
-                Dashboard
-              </Link>
-              <Link to="/settings" className="hover:text-white transition">
-                Settings
+              <Link to="/domainai" className="hover:text-white transition">Domain Studio</Link>
+              <Link to="/status" className="hover:text-white transition">Project Pad</Link>
+              <Link to="/bookmarks" className="hover:text-white transition flex items-center gap-1">
+                <Bookmark size={14} /> Saved
               </Link>
             </>
           )}
         </div>
 
-        {/* Auth Section */}
-        <div className="relative flex items-center gap-4" ref={dropdownRef}>
+        {/* User Actions */}
+        <div className="relative flex items-center gap-6" ref={dropdownRef}>
           {!isAuthenticated ? (
             <button
               onClick={() => loginWithRedirect()}
-              className="bg-indigo-500 hover:bg-indigo-600 transition px-5 py-2 rounded-xl text-sm font-medium"
+              className="bg-indigo-600 hover:bg-indigo-500 text-white transition px-6 py-2 rounded-xl text-sm font-bold shadow-lg shadow-indigo-500/20 active:scale-95"
             >
-              Login
+              Get Started
             </button>
           ) : (
             <>
-              {/* Avatar */}
-              <button onClick={() => setIsOpen(!isOpen)}>
+              {/* Profile Trigger */}
+              <button 
+                onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+                className="relative group focus:outline-none"
+              >
                 <img
                   src={user?.picture}
                   alt="Profile"
-                  className="w-9 h-9 rounded-full border border-slate-700 hover:border-indigo-400 transition"
+                  className="w-10 h-10 rounded-full border-2 border-slate-800 group-hover:border-indigo-500 transition-all shadow-xl"
                 />
+                <div className="absolute -bottom-0.5 -right-0.5 w-3 h-3 bg-emerald-500 border-2 border-slate-950 rounded-full"></div>
               </button>
 
-              {/* Quick Logout */}
-              <button
-                onClick={() =>
-                  logout({ logoutParams: { returnTo: window.location.origin } })
-                }
-                className="text-sm text-red-400 hover:text-red-300 transition"
-              >
-                Logout
-              </button>
-
-              {/* Dropdown */}
-              {isOpen && (
-                <div className="absolute right-0 top-14 w-60 bg-slate-900 border border-slate-800 rounded-xl shadow-lg p-4 space-y-3">
+              {/* Account Dropdown */}
+              {isDropdownOpen && (
+                <div className="absolute right-0 top-14 w-64 bg-slate-900 border border-slate-800 rounded-2xl shadow-2xl p-2 animate-in fade-in slide-in-from-top-2">
                   
-                  <div className="text-sm">
-                    <div className="font-semibold text-slate-200">
-                      {user?.name}
-                    </div>
-                    <div className="text-slate-400 text-xs">
-                      {user?.email}
-                    </div>
+                  <div className="px-4 py-3 mb-2 bg-slate-950/50 rounded-xl">
+                    <p className="font-bold text-slate-100 truncate text-sm">{user?.name}</p>
+                    <p className="text-slate-500 text-xs truncate">{user?.email}</p>
                   </div>
 
-                  <div className="border-t border-slate-800 pt-3 space-y-2 text-sm">
-                    <Link
-                      to="/dashboard"
-                      className="block hover:text-indigo-400 transition"
-                      onClick={() => setIsOpen(false)}
-                    >
-                      Dashboard
-                    </Link>
-                    <Link
-                      to="/settings"
-                      className="block hover:text-indigo-400 transition"
-                      onClick={() => setIsOpen(false)}
-                    >
-                      Settings
-                    </Link>
+                  <div className="space-y-1">
+                    <DropdownLink to="/userprofile" icon={<User size={16} />} label="Account Settings" onClick={() => setIsDropdownOpen(false)} />
+                    <DropdownLink to="/userdashboard" icon={<Layout size={16} />} label="My Projects" onClick={() => setIsDropdownOpen(false)} />
+                    <DropdownLink to="/settings" icon={<Zap size={16} />} label="API Keys" onClick={() => setIsDropdownOpen(false)} />
                   </div>
 
-                  <div className="border-t border-slate-800 pt-3">
+                  <div className="border-t border-slate-800 mt-2 pt-2">
                     <button
-                      onClick={() =>
-                        logout({ logoutParams: { returnTo: window.location.origin } })
-                      }
-                      className="w-full text-left text-sm text-red-400 hover:text-red-300 transition"
+                      onClick={handleLogout}
+                      className="w-full flex items-center gap-3 px-4 py-2 text-sm text-red-400 hover:bg-red-400/10 rounded-xl transition"
                     >
+                      <LogOut size={16} />
                       Logout
                     </button>
                   </div>
-
                 </div>
               )}
             </>
@@ -132,5 +108,17 @@ const Navbar = () => {
     </nav>
   );
 };
+
+// Sub-component for Dropdown Items
+const DropdownLink = ({ to, icon, label, onClick }) => (
+  <Link
+    to={to}
+    onClick={onClick}
+    className="flex items-center gap-3 px-4 py-2.5 text-sm text-slate-400 hover:text-white hover:bg-slate-800 rounded-xl transition"
+  >
+    {icon}
+    {label}
+  </Link>
+);
 
 export default Navbar;

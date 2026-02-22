@@ -3,11 +3,16 @@ import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import Navbar from "./components/Navbar";
 import Footer from "./components/Footer";
 import Home from "./components/Home";
-
-const Dashboard = () => <div className="p-10">Dashboard Page</div>;
-const Settings = () => <div className="p-10">Settings Page</div>;
-const About = () => <div className="p-10">About Page</div>;
-
+import DomainAI from "./features/DomainAI";
+import DomainStatus from "./features/DomainStatus";
+import UserBookmarks from "./features/UserBookmarks";
+import ProjectChatbot from "./components/ProjectChatbot";
+import BackToTop from "./utility/BackToTop";
+import Workspace from "./core/Workspace";
+import UserProfile from "./user/UserProfile";
+import Settings from "./user/Settings";
+import UserDashboard from "./user/UserDashboard";
+import About from "./components/About";
 function App() {
   return (
     <Router>
@@ -17,12 +22,20 @@ function App() {
         <div className="pt-24 flex-grow">
           <Routes>
             <Route path="/" element={<Home />} />
-            <Route path="/dashboard" element={<Dashboard />} />
+            {/* Change 'Dashboard' to 'UserDashboard' or ensure Dashboard is imported */}
+            <Route path="/dashboard" element={<UserDashboard />} />
+            <Route path="/domainai" element={<DomainAI />} />
+            <Route path="/status" element={<DomainStatus />} />
+            <Route path="/bookmarks" element={<UserBookmarks />} />
+            <Route path="/workspace" element={<Workspace />} />
+            <Route path="/userprofile" element={<UserProfile />} />
             <Route path="/settings" element={<Settings />} />
+            <Route path="/userdashboard" element={<UserDashboard />} />
             <Route path="/about" element={<About />} />
           </Routes>
         </div>
-
+        <ProjectChatbot />
+        <BackToTop />
         <Footer />
       </div>
     </Router>
